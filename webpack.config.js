@@ -138,7 +138,7 @@ module.exports = {
     },
     plugins:[
         // 打包前先清空
-        //new CleanWebpackPlugin('dist/*.*') ,
+        new CleanWebpackPlugin('dist/*.*') ,
         new ExtractTextWebpackPlugin({ //样式文件单独打包
             filename: "./css/app.css",  //指定生成的文件名称
             disable: false,  //是否禁用此插件
