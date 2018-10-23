@@ -3,11 +3,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 // 拆分css样式的插件
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const copyWebpackPlugin = require('copy-webpack-plugin');
 
 function resolve (dir) {
     return path.join(__dirname, './', dir)
 }
-
+console.log(resolve ('abcdefghijklmnop'));
 module.exports = {
     mode:'development',
     // entry:['babel-polyfill','./main.js'],//可以有多个入口文件
@@ -154,6 +155,10 @@ module.exports = {
             minify: false,//传递 html-minifier 选项给 minify 输出
             favicon: "",//添加特定的 favicon 路径到输出的 HTML 文件中。
         }),
+        new copyWebpackPlugin([{
+            from:__dirname+'/src/data',//打包的静态资源目录地址
+            to:'./data' //打包到dist下面的public
+        }]),
     ],
     devServer: {
         publicPath: '/',//
