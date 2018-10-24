@@ -70,10 +70,16 @@ module.exports = {
                     // 将css用link的方式引入就不再需要style-loader了
                     fallback: "style-loader",
                     use:[
-                        {loader:'css-loader',options:{importLoaders:1}},
+                        {
+                            loader:'css-loader',
+                            options:{
+                                //url:false, //false  css中加载图片的路径将不会被解析 不会改变
+                                importLoaders:1
+                            }
+                        },
                         'postcss-loader', 
                     ],
-                    publicPath: './css'       
+                    publicPath: '../css'       
                 })
                 // use: [ //以行内样式style的标签写进打包后的html页面中
                 //     {
@@ -96,11 +102,17 @@ module.exports = {
                 use: ExtractTextWebpackPlugin.extract({
                     fallback:'style-loader',
                     use:[
-                        {loader:'css-loader',options:{importLoaders:1}},
+                        {
+                            loader:'css-loader',
+                            options:{
+                                // url:false,
+                                importLoaders:1
+                            }
+                        },
                          'postcss-loader', 
                          'less-loader'
                     ],
-                    publicPath: './css'   
+                    publicPath: '../css'   
                   }),
                   exclude: path.resolve(__dirname,'./node_modules')
             },
@@ -109,7 +121,7 @@ module.exports = {
                 loader: 'url-loader',
                 options: {
                   limit: 10000,
-                  name: "[name].[hash:5].[ext]",
+                  name: "[name].[ext]",
                   outputPath: "./images",//打包后图片文件输出路径
                   publicPath:'../images'
                 }
@@ -130,7 +142,7 @@ module.exports = {
                   name: 'fonts/[name].[hash:7].[ext]'
                 }
             },
-            { //页面中经常会用到img标签，img引用的图片地址也需要一个loader来处理,这样再打包后的html文件下img就可以正常引用图片路径了
+            { //页面中会用到img标签，img引用的图片地址也需要一个loader来处理,这样再打包后的html文件下img就可以正常引用图片路径了
                 test: /\.(htm|html)$/,
                 use: 'html-withimg-loader'
             }
@@ -138,9 +150,9 @@ module.exports = {
     },
     plugins:[
         // 打包前先清空
-        new CleanWebpackPlugin('dist/*.*') ,
+        new CleanWebpackPlugin('dist/') ,
         new ExtractTextWebpackPlugin({ //样式文件单独打包
-            filename: "./css/app.css",  //指定生成的文件名称
+            filename: "./css/[name].min.css",  //指定生成的文件名称
             disable: false,  //是否禁用此插件
             allChunks: true
           }),
@@ -155,10 +167,16 @@ module.exports = {
             minify: false,//传递 html-minifier 选项给 minify 输出
             favicon: "",//添加特定的 favicon 路径到输出的 HTML 文件中。
         }),
-        new copyWebpackPlugin([{
-            from:__dirname+'/src/data',//打包的静态资源目录地址
-            to:'./data' //打包到dist下面的public
-        }]),
+        new copyWebpackPlugin([
+            {
+            from:__dirname+'/static',//打包的静态资源目录地址
+            to:'./static' //打包到dist下面的static
+            },
+            {
+                from:__dirname+'/src/assets/images',//打包的静态资源目录地址
+                to:'./images' 
+            }
+        ]),
     ],
     devServer: {
         publicPath: '/',//
