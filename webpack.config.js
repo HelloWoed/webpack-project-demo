@@ -73,7 +73,7 @@ module.exports = {
                         {
                             loader:'css-loader',
                             options:{
-                                //url:false, //false  css中加载图片的路径将不会被解析 不会改变
+                                url:false, //false  css中加载图片的路径将不会被解析 不会改变
                                 importLoaders:1
                             }
                         },
@@ -105,7 +105,7 @@ module.exports = {
                         {
                             loader:'css-loader',
                             options:{
-                                // url:false,
+                                url:false,
                                 importLoaders:1
                             }
                         },
@@ -121,9 +121,9 @@ module.exports = {
                 loader: 'url-loader',
                 options: {
                   limit: 10000,
-                  name: "[name].[ext]",
+                  name: "[name].[hash:4].[ext]",
                   outputPath: "./images",//打包后图片文件输出路径
-                  publicPath:'../images'
+                  publicPath:'./images'
                 }
             },
             {
@@ -169,12 +169,8 @@ module.exports = {
         }),
         new copyWebpackPlugin([
             {
-            from:__dirname+'/static',//打包的静态资源目录地址
+            from:__dirname+'/src/assets/static',//打包的静态资源目录地址
             to:'./static' //打包到dist下面的static
-            },
-            {
-                from:__dirname+'/src/assets/images',//打包的静态资源目录地址
-                to:'./images' 
             }
         ]),
     ],
