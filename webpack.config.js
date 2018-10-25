@@ -28,23 +28,38 @@ module.exports = {
         }
     },
     //在webpack4之前，提取公共代码都是通过一个叫CommonsChunkPlugin的插件来办到的。到了webpack4以后，内置了一个一模一样的功能，就是所谓的“优化”
-//    optimization: {  // 提取公共代码
-//         splitChunks: {
-//             cacheGroups: {
-//                 vendor: {   // 剥离第三方插件
-//                     test: /node_modules/,   // 指定是node_modules下的第三方包
-//                     chunks: 'initial',
-//                     name: 'vendor',  // 打包后的文件名，随意命名    
-//                     priority: 10    // 设置优先级，防止和自定义的公共代码提取时被覆盖，不进行打包
-//                 },
-//                 utils: { // 抽离自己写的公共代码，utils这个名字可以随意起
-//                     chunks: 'initial',
-//                     name: 'utils',  // 任意命名
-//                     minSize: 0    // 只要超出0字节就生成一个新包
-//                 }
-//             }
-//         }
-//     },
+   optimization: {  // 提取公共代码
+        splitChunks: {
+            chunks: 'async',//有效值为all，async和initial,  all可以特别强大，即使在异步和非异步块之间也可以共享块。
+            minSize: 30000,//要生成的块的最小大小（以字节为单位）。
+            maxSize: 0,//maxSize只是一个提示，当模块大于maxSize或分裂会违反时，可能会违反minSize。
+            minChunks: 1,
+            maxAsyncRequests: 5,//按需加载时的最大并行请求数。
+            maxInitialRequests: 3,//入口点处的最大并行请求数。
+            name: true,//拆分块的名称。提供true将基于块和缓存组密钥自动生成名称。提供字符串或函数将使用自定义名称。如果名称与入口点名称匹配，则将删除入口点。
+            cacheGroups: {
+                vendor: {   // 剥离第三方插件
+                    test: /node_modules\/(.*)\.js/,   // 匹配绝对模块资源路径或块名称。匹配块名称时，将选择块中的所有模块。 /[\\/]node_modules[\\/]/  包括node_modules整个应用程序中的所有代码。
+                    reuseExistingChunk: false,  //如果当前块包含已从主文件拆分的模块，则将重用它而不是生成新的块。可能会影响块的结果文件名。
+                    filename: '[name].bundle.[hash:4].js', //允许在当且仅当它是初始块时覆盖文件名。所有占位符output.filename也可在此处获得。
+                    priority: 10    // 设置优先级，防止和自定义的公共代码提取时被覆盖，不进行打包
+                },
+                common:{
+                    test: /src\/(.*)\.js/,  
+                    filename: '[name].bundle.[hash:4].js',
+                    minSize:10
+                },
+                styles: {
+                    test: /\.(less|css)$/,
+                    chunks: 'all',
+                    name:'app',
+                    minChunks: 1,
+                    reuseExistingChunk: true,
+                    enforce: true
+                }          
+            }
+        }
+    },
     performance: {
         hints: "warning", // 枚举
         maxAssetSize: 30000000, // 整数类型（以字节为单位）
@@ -160,12 +175,19 @@ module.exports = {
             template:"./index.html",//本地模板文件的位置，支持加载器(如handlebars、ejs、undersore、html等)，如比如 handlebars!src/index.hbs；
             filename: './index.html',//输出文件的文件名称，默认为index.html，不配置就是该文件名；此外，还可以为输出文件指定目录位置（例如'html/index.html'）
             title: 'Webpack App',//生成的html文档的标题
-            chunks:["app"],
+            chunks:["app"],//引入的a,b模块，这里指定的是entry中设置多个js时，在这里指定引入的js，如果不设置则默认全部引入,数组形式传入
+            minify: {
+                caseSensitive: false, //是否大小写敏感
+                collapseBooleanAttributes: true, //是否简写boolean格式的属性如：disabled="disabled" 简写为disabled 
+                collapseWhitespace: true //是否去除空格
+            },
+            chunksSortMode: "auto", //引入模块的排序方式
+            //excludeChunks: ['a', 'b'], //排除的模块,引入的除a,b模块以外的模块，与chunks相反
             inject:true,//1、true或者body：所有JavaScript资源插入到body元素的底部2、head: 所有JavaScript资源插入到head元素中3、false： 所有静态资源css和JavaScript都不会注入到模板文件中
             showErrors:true,//是否将错误信息输出到html页面中
             hash:true,//是否为所有注入的静态资源添加webpack每次编译产生的唯一hash值
             minify: false,//传递 html-minifier 选项给 minify 输出
-            favicon: "",//添加特定的 favicon 路径到输出的 HTML 文件中。
+            favicon: "",//指定页面图标 favicon 路径到输出的 HTML 文件中。
         }),
         new copyWebpackPlugin([
             {
